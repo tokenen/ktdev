@@ -1,17 +1,21 @@
+# 使用最小的基础镜像
 FROM alpine:latest
 
-RUN apk add --no-cache ca-certificates python3
+# 安装 CA 证书（如果你的程序需要访问 HTTPS 外部 API）
+RUN apk add --no-cache ca-certificates
 
+# 设置工作目录
 WORKDIR /app
 
+# 复制二进制文件和配置文件
 COPY kt .
-COPY entrypoint.sh .
-RUN chmod +x kt entrypoint.sh
+# COPY config.yaml .
 
-RUN mkdir -p /tmp/www && echo "ok" > /tmp/www/health && echo "kt worker running" > /tmp/www/index.html
+# 给二进制文件添加执行权限
+RUN chmod +x kt
 
-ENV PORT=8080
+# 暴露端口（Render 要求，虽然实际端口是动态的）
 EXPOSE 8080
 
-# 不要用 sh -c + & + exec 了
-CMD ["./entrypoint.sh"]
+# 运行程序
+CMD ["./kt"]
